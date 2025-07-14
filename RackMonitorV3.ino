@@ -55,7 +55,7 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature temperatureSensors(&oneWire);
 DeviceAddress tempSensor1 = { 0x28, 0x8E, 0xDA, 0xEF, 0x13, 0x19, 0x01, 0x79 };
 DeviceAddress tempSensor2 = { 0x28, 0xA9, 0xB1, 0xE0, 0x13, 0x19, 0x01, 0xB1 };
-DeviceAddress tempSensor3 = { 0x28, 0x10, 0x91, 0x1C, 0x14, 0x19, 0x01, 0xC1 };
+DeviceAddress tempSensor3 = { 0x28, 0x28, 0x0B, 0x94, 0x97, 0x0E, 0x03, 0xFA };
 DeviceAddress tempSensor4 = { 0x28, 0xDB, 0x48, 0x20, 0x14, 0x19, 0x01, 0x51 };
 
 uint8_t sensorsCount = 0;
@@ -93,7 +93,6 @@ const unsigned char ICON_FAN2[] PROGMEM = {
 // Restart every 24 hours (in milliseconds)
 const unsigned long RESTART_TIME = 24 * 60 * 60000UL;
 bool restartRequested = false;
-
 
 
 void beep()
@@ -298,8 +297,8 @@ void processIncomingServerConnections()
           
           if (__TRACE)
           {
-            Serial.print(F("---REQUEST BEGIN---"));
-            Serial.print(httpRequest);
+            Serial.println(F("---REQUEST BEGIN---"));
+            Serial.println(httpRequest);
             Serial.println(F("---REQUEST END---"));
           }
           break;
@@ -736,35 +735,36 @@ void statusResponse(EthernetClient &webClient)
 
 void metricsResponse(EthernetClient &webClient)
 {
-  webClient.print(
-    F("HTTP/1.1 200 OK\r\n"
-    "Content-Type: text/plain; charset=utf-8\r\n"
-    "Connection: close\r\n"
-    "Cache-Control: no-cache\r\n"
-    "X-Content-Type-Options: nosniff\r\n"
-    "\r\n")
-  );
+  webClient.println(F("HTTP/1.1 200 OK"));
+  webClient.println(F("Content-Type: text/plain; charset=utf-8"));
+  webClient.println(F("Connection: close"));
+  webClient.println(F("Cache-Control: no-cache"));
+  webClient.println(F("X-Content-Type-Options: nosniff"));
+  webClient.println();
 
-  webClient.println(
-    String(F("# HELP rack_monitor_temp1 Rack monitoring system - temperature of sensor #1 in degrees Celsius.")) + "\n" +
-    String(F("# TYPE rack_monitor_temp1 gauge")) + "\n" +
-    String(F("rack_monitor_temp1 ")) + String(temp1) + "\n" +
-    String(F("# HELP rack_monitor_temp2 Rack monitoring system - temperature of sensor #2 in degrees Celsius.")) + "\n" +
-    String(F("# TYPE rack_monitor_temp2 gauge")) + "\n" +
-    String(F("rack_monitor_temp2 ")) + String(temp2) + "\n" +
-    String(F("# HELP rack_monitor_temp3 Rack monitoring system - temperature of sensor #3 in degrees Celsius.")) + "\n" +
-    String(F("# TYPE rack_monitor_temp3 gauge")) + "\n" +
-    String(F("rack_monitor_temp3 ")) + String(temp3) + "\n" +
-    String(F("# HELP rack_monitor_temp4 Rack monitoring system - temperature of sensor #4 in degrees Celsius.")) + "\n" +
-    String(F("# TYPE rack_monitor_temp4 gauge")) + "\n" +
-    String(F("rack_monitor_temp4 ")) + String(temp4) + "\n" +
-    String(F("# HELP rack_monitor_relay1_state Rack monitoring system - Relay #1 state (0 - off, 1 - on).")) + "\n" +
-    String(F("# TYPE rack_monitor_relay1_state counter")) + "\n" +
-    String(F("rack_monitor_relay1_state ")) + String(relay1On) + "\n" +
-    String(F("# HELP rack_monitor_relay2_state Rack monitoring system - Relay #2 state (0 - off, 1 - on).")) + "\n" +
-    String(F("# TYPE rack_monitor_relay2_state counter")) + "\n" +
-    String(F("rack_monitor_relay2_state ")) + String(relay2On) + "\n"
-  );
+  webClient.print("# HELP rack_monitor_temp1 Rack monitoring system - temperature of sensor #1 in degrees Celsius.\n");
+  webClient.print("# TYPE rack_monitor_temp1 gauge\n");
+  webClient.print(String("rack_monitor_temp1 ") + String(temp1) + "\n");
+
+  webClient.print("# HELP rack_monitor_temp2 Rack monitoring system - temperature of sensor #2 in degrees Celsius.\n");
+  webClient.print("# TYPE rack_monitor_temp2 gauge\n");
+  webClient.print(String("rack_monitor_temp2 ") + String(temp2) + "\n");
+
+  webClient.print("# HELP rack_monitor_temp3 Rack monitoring system - temperature of sensor #3 in degrees Celsius.\n");
+  webClient.print("# TYPE rack_monitor_temp3 gauge\n");
+  webClient.print(String("rack_monitor_temp3 ") + String(temp3) + "\n");
+
+  webClient.print("# HELP rack_monitor_temp4 Rack monitoring system - temperature of sensor #4 in degrees Celsius.\n");
+  webClient.print("# TYPE rack_monitor_temp4 gauge\n");
+  webClient.print(String("rack_monitor_temp4 ") + String(temp4) + "\n");
+
+  webClient.print("# HELP rack_monitor_relay1_state Rack monitoring system - Relay #1 state (0 - off, 1 - on).\n");
+  webClient.print("# TYPE rack_monitor_relay1_state counter\n");
+  webClient.print(String("rack_monitor_relay1_state ") + String(relay1On) + "\n");
+
+  webClient.print("# HELP rack_monitor_relay2_state Rack monitoring system - Relay #2 state (0 - off, 1 - on).\n");
+  webClient.print("# TYPE rack_monitor_relay2_state counter\n");
+  webClient.print(String("rack_monitor_relay2_state ") + String(relay2On) + "\n");
 }
 
 void deviceRestartResponse(EthernetClient &webClient)
